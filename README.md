@@ -208,44 +208,44 @@ As you can see, it is possible to group several `service` definitions together b
 To have a complete set of information about the network topology, each subnet of our example network has to be specified in the `subnets` section. With all subnets specified, we can then easily express connectivity requirements for all hosts inside a particular subnet. According to the requirements, our `subnets` section would look like this:
 
 ```
-  <subnets>
-    <group name="net-private">
+<subnets>
+  <group name="net-private">
 
-      <subnet name="net-clients">
-        <address value="10.1.0.0" length="24" type="ipv4"/>
-        <gateway value="10.1.0.1"  type="ipv4"/>
-        <expose target="rdp-to-workstations"/>
-        <access target="web-services"/>
-        <access target="storage-services"/>
-        <access target="outbound-services"/>
-        <masquerade target="clients-to-public"/>
-      </subnet>
-
-      <subnet name="net-services">
-        <address value="10.2.0.0" length="24" type="ipv4"/>
-        <gateway value="10.2.0.1" type="ipv4"/>
-        <access target="rdp-to-workstations"/>
-        <access target="outbound-services"/>
-        <expose target="rdp-to-services"/>
-        <masquerade target="services-to-public"/>
-      </subnet>
-
-      <subnet name="net-backbone">
-        <address value="10.3.0.0" length="16" type="ipv4"/>
-        <gateway value="10.3.0.1" type="ipv4"/>
-      </subnet>
-
-    </group>
-
-    <subnet name="net-public" role="public">
-      <address value="1.2.3.0" length="29" type="ipv4"/>
-      <gateway value="1.2.3.4" type="ipv4"/>
-      <expose target="outbound-services"/>
-      <publish target="published-web-services"/>
+    <subnet name="net-clients">
+      <address value="10.1.0.0" length="24" type="ipv4"/>
+      <gateway value="10.1.0.1"  type="ipv4"/>
+      <expose target="rdp-to-workstations"/>
       <access target="web-services"/>
+      <access target="storage-services"/>
+      <access target="outbound-services"/>
+      <masquerade target="clients-to-public"/>
     </subnet>
 
-  </subnets>
+    <subnet name="net-services">
+      <address value="10.2.0.0" length="24" type="ipv4"/>
+      <gateway value="10.2.0.1" type="ipv4"/>
+      <access target="rdp-to-workstations"/>
+      <access target="outbound-services"/>
+      <expose target="rdp-to-services"/>
+      <masquerade target="services-to-public"/>
+    </subnet>
+
+    <subnet name="net-backbone">
+      <address value="10.3.0.0" length="16" type="ipv4"/>
+      <gateway value="10.3.0.1" type="ipv4"/>
+    </subnet>
+
+  </group>
+
+  <subnet name="net-public" role="public">
+    <address value="1.2.3.0" length="29" type="ipv4"/>
+    <gateway value="1.2.3.4" type="ipv4"/>
+    <expose target="outbound-services"/>
+    <publish target="published-web-services"/>
+    <access target="web-services"/>
+  </subnet>
+
+</subnets>
 ```
 
 As you can see, the concept of hierarchical grouping by use of `group` elements is applied in a similar manner as in the `services` section.
