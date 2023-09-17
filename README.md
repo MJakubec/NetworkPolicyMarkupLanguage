@@ -100,6 +100,12 @@ Our example network requirements specify several fundamental protocol and port c
 
 ```
 <protocols>
+    <protocol name="ftp"
+              transport="tcp"
+              port="21"
+              category="storage"
+              comment="File Transfer Protocol"
+    />
     <protocol name="ssh"
               transport="tcp"
               port="22"
@@ -185,6 +191,19 @@ Now it will be beneficial to express all distinct services contained inside our 
     </group>
 
     <group name="composed-services">
+      <service name="web-services">
+        <include name="http+https"/>
+      </service>
+
+      <service name="storage-services">
+        <protocol name="ftp"/>
+        <protocol name="tcp" port="52100:52199" description="FTP passive"/>
+        <protocol name="smb"/>
+      </service>
+
+      <service name="remote-desktop-services">
+        <include name="rdp"/>
+      </service>
 
       <service name="remote-console-services">
         <protocol name="ssh"/>
@@ -346,29 +365,29 @@ An finally, `target` elements are the last piece of the network policy puzzle. T
   <group name="services">
 
     <target name="outbound-services">
-      <service name="http+https"/>
+      <service name="outbound-services"/>
       <subnet name="net-public"/>
     </target>
 
     <target name="web-services">
-      <service name="http+https"/>
+      <service name="web-services"/>
       <host name="sr-primary"/>
     </target>
 
     <target name="storage-services">
-      <protocol name="smb"/>
+      <service name="storage-services"/>
       <host name="sr-secondary"/>
     </target>
 
     <target name="rdp-to-workstations">
-      <service name="rdp"/>
+      <service name="remote-desktop-services"/>
       <subnet name="net-clients"/>
     </target>
 
     <group name="management-access">
 
       <target name="rdp-to-services">
-        <service name="rdp"/>
+        <service name="remote-desktop-services"/>
         <subnet name="net-services"/>
       </target>
 
