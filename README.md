@@ -157,7 +157,7 @@ Our example network requirements specify several fundamental protocol and port c
 </protocols>
 ```
 
-Any of the defined protocol can be easily specified inside definitions of `services`, `subnets`, `hosts` or `targets` sections, as you will see in the following sections (no pun intended).
+Any of defined protocols can be easily specified inside definitions of `services`, `subnets`, `hosts` or `targets` sections, as you will see in the following sections (no pun intended).
 
 ## Defining Services
 
