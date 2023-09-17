@@ -427,4 +427,4 @@ An important (and rather peculiar) feature of `target` elements is that you can 
 </targets>
 ```
 
-If you specify the "rdp-from-all" `target` by use of `access` element in all private `subnet` elements, then only the "pc-one `host` will be accessible by remote desktop client. Next, if you specify the "rdp-from-servers" `target` by use of `access` element in the "net-services" `subnet` element, then both "pc-one" and "pc-two" will be accessible from the "net-services `subnet` hosts, without need to repeat `host` and `service` declaration of "pc-one" inside the "rdp-from-servers" `target` element.
+If you specify the "rdp-from-all" `target` by use of `access` element in all private `subnet` elements, then only the "pc-one `host` will be accessible by remote desktop client. Next, if you specify the "rdp-from-servers" `target` by use of `access` element in the "net-services" `subnet` element, then both "pc-one" and "pc-two" will be accessible from the "net-services" `subnet` hosts, without need to repeat `host` and `service` declaration of "pc-one" inside the "rdp-from-servers" `target` element.
