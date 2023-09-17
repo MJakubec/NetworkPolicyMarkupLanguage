@@ -410,7 +410,7 @@ An finally, `target` elements are the last piece of the network policy puzzle. T
 
 Again, even for `target` element, you can use the `group` elements to better organize them into hierarchical, meaningful structures. Sometimes, it can also be beneficial to refer to several `target` elements by use of the name of the parent `group` element.
 
-An important (and rather peculiar) feature of `target` elements is that you can nest them into each other to gain more flexibility for hierarchical specification of `host` and `subnet` groups. Unfortunately, our example network is so simple that it does not allow to demonstrate it easily. Let me explain it in a completely independent example:
+An important (and rather peculiar) feature of `target` elements is that you can nest them into each other to gain more flexibility for hierarchical specification of `host` and `subnet` elements. Unfortunately, our example network is so simple that it does not allow to demonstrate it easily. Let me explain it in a completely independent example:
 
 ```
 <targets>
@@ -427,4 +427,4 @@ An important (and rather peculiar) feature of `target` elements is that you can 
 </targets>
 ```
 
-If you specify the "rdp-from-all" `target` by use of `access` element in all private `subnet` elements, then only the "pc-one `host` will be accessible by remote desktop client. Next, if yo specify the "rdp-from-servers" `target` by use of `access` element in the "net-services" `subnet` element, then both "pc-one" and "pc-two" will be accessible from the "net-services `subnet` hosts, without need to repeat `host` declaration of "pc-one" inside the "rdp-from-servers" `target` element.
+If you specify the "rdp-from-all" `target` by use of `access` element in all private `subnet` elements, then only the "pc-one `host` will be accessible by remote desktop client. Next, if you specify the "rdp-from-servers" `target` by use of `access` element in the "net-services" `subnet` element, then both "pc-one" and "pc-two" will be accessible from the "net-services `subnet` hosts, without need to repeat `host` declaration of "pc-one" inside the "rdp-from-servers" `target` element.
