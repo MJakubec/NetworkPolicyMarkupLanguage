@@ -256,7 +256,7 @@ If the all hosts in the subnet need to access a particular `target`, you can exp
 
 Similarly, if you want to apply SNAT onto outbound public traffic originating from all hosts of particular `subnet`, you can specify that by use of `masquerade` element.
 
-To be aware of a public subnet interconnecting out local area network with the Internet, the "net-public" `subnet` has the `role` attribute by which we can easily recognize its special treatment it desires for generation of final firewall rules.
+To be aware of a public subnet interconnecting our local area network with the Internet, the "net-public" `subnet` has the `role` attribute by which we can easily recognize its special treatment it desires for generation of final firewall rules.
 
 In the "net-public" `subnet` element, there is a `publish` element specifying that some internal services defined inside a referred `target` will be available to any host on the Internet.
 
