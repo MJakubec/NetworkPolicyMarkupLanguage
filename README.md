@@ -86,7 +86,7 @@ Basic document structure of each network policy definition looks like this:
 </networkPolicy>
 ```
 
-Every network policy document starts with a root element "networkPolicy", which contains several child sections. Each child section stores hierarchy of elements for particular object type:
+Every network policy document starts with a `networkPolicy` root element, which contains several child sections. Each child section stores hierarchy of elements for particular object type:
 
 * `protocols` – defines fundamental combinations of protocols and their appropriate port numbers
 * `services` – defines combinations of protocols comprising services
@@ -248,8 +248,183 @@ To have a complete set of information about the network topology, each subnet of
   </subnets>
 ```
 
+As you can see, the concept of hierarchical grouping by use of `group` elements is applied in a similar manner as in the `services` section.
+
 Inside a `subnet` element, you can see several elements of `access`, `expose`, `publish` and `masquerade` type. These elements refer to the name of particular `target` elements, which we will discuss later in their own separate section.
 
 If the all hosts in the subnet need to access a particular `target`, you can express that by use of `access` element. You are allowed to place it inside or outside of the `subnet` element. If you place it outside, it will be inherited by one or more child `subnet` elements. This allows you to easily assign an `access` to more than one `subnet` at once. The same is true for remaining three elements as well.
 
-As you can see, the concept of hierarchical grouping by use of `group` elements is applied in a similar manner as in the `services` section.
+Similarly, if you want to apply SNAT onto outbound public traffic originating from all hosts of particular `subnet`, you can specify that by use of `masquerade` element.
+
+To be aware of a public subnet interconnecting out local area network with the Internet, the "net-public" `subnet` has the `role` attribute by which we can easily recognize its special treatment it desires for generation of final firewall rules.
+
+In the "net-public" `subnet` element, there is a `publish` element specifying that some internal services defined inside a referred `target` will be available to any host on the Internet.
+
+## Defining Hosts
+
+According to our example connectivity requirements, there are some specific hosts for which we need to declare particular access or specify that there are some services these hosts are providing to the network:
+
+```
+<hosts>
+  <group name="workstations">
+
+    <host name="pc-one">
+      <address value="10.1.0.11" type="ipv4"/>
+      <address value="00:01:00:11:11:11" type="mac"/>
+      <access target="management-access"/>
+    </host>
+
+    <host name="pc-two">
+      <address value="10.1.0.12" type="ipv4"/>
+      <address value="00:01:00:12:12:12" type="mac"/>
+      <access target="router-access"/>
+    </host>
+  </group>
+
+  <group name="servers">
+    <host name="sr-primary">
+      <address value="10.2.0.11" type="ipv4"/>
+      <address value="00:02:00:11:11:11" type="mac"/>
+      <expose target="web-services"/>
+    </host>
+
+    <host name="sr-secondary">
+      <address value="10.2.0.12" type="ipv4"/>
+      <address value="00:02:00:12:12:12" type="mac"/>
+      <expose target="storage-services"/>
+    </host>
+  </group>
+
+  <group name="routers">
+
+    <host name="rt-edge">
+      <interface name="wan">
+        <address value="1.2.3.4" type="ipv4" name="wan1"/>
+        <address value="1.2.3.5" type="ipv4" name="wan2"/>
+      </interface>
+      <interface name="lan-backbone">
+        <address value="10.3.0.1" type="ipv4" name="lan-backbone"/>
+        <address value="00:03:00:AA:AA:AA" type="mac"/>
+      </interface>
+      <expose target="router-access"/>
+    </host>
+
+    <host name="rt-clients">
+      <inteface name="lan-clients">
+        <address value="10.1.0.1" type="ipv4" name="lan-clients"/>
+        <address value="00:01:00:AA:AA:AA" type="mac"/>
+      </inteface>
+      <interface name="lan-backone">
+        <address value="10.3.1.1" type="ipv4" name="lan-backbone"/>
+        <address value="00:03:00:11:11:11" interface="lan-backbone" type="mac"/>
+      </interface>
+      <expose target="router-access"/>
+    </host>
+
+    <host name="rt-services">
+      <interface name="lan-services">
+        <address value="10.2.0.1" type="ipv4" name="lan-services"/>
+        <address value="00:02:00:AA:AA:AA" type="mac"/>
+      </interface>
+      <interface name="lan-backbone">
+        <address value="10.3.2.1" type="ipv4" name="lan-backbone"/>
+        <address value="00:03:00:22:22:22" type="mac"/>
+      </interface>
+      <expose target="router-access"/>
+    </host>
+
+  </group>
+</hosts>
+```
+
+## Defining Targets
+
+An finally, `target` elements are the last piece of the network policy puzzle. Their purpose is to bind several protocols or services together with one or more `subnet` or `host` elements and assign a meaningful name to that combination:
+
+```
+<targets>
+  <group name="services">
+
+    <target name="outbound-services">
+      <service name="http+https"/>
+      <subnet name="net-public"/>
+    </target>
+
+    <target name="web-services">
+      <service name="http+https"/>
+      <host name="sr-primary"/>
+    </target>
+
+    <target name="storage-services">
+      <protocol name="smb"/>
+      <host name="sr-secondary"/>
+    </target>
+
+    <target name="rdp-to-workstations">
+      <service name="rdp"/>
+      <subnet name="net-clients"/>
+    </target>
+
+    <group name="management-access">
+
+      <target name="rdp-to-services">
+        <service name="rdp"/>
+        <subnet name="net-services"/>
+      </target>
+
+      <target name="router-access">
+        <service name="remote-console-services"/>
+        <host name="rt-edge"/>
+      </target>
+
+    </group>
+  </group>
+
+  <group name="publishing">
+
+    <target name="published-web-services" type="publish">
+      <service name="http+https"/>
+      <host name="rt-edge" address="wan1" role="public"/>
+      <host name="sr-primary" role="private"/>
+    </target>
+
+  </group>
+
+  <group name="masquerade">
+
+    <target name="clients-to-public" type="masquerade">
+      <service name="http+https"/>
+      <subnet name="net-public"/>
+      <host name="rt-edge" address="wan1" role="public"/>
+    </target>
+
+    <target name="services-to-public" type="masquerade">
+      <service name="http+https"/>
+      <subnet name="net-public"/>
+      <host name="rt-edge" address="wan2" role="public"/>
+    </target>
+
+  </group>
+</targets>
+```
+
+Again, even for `target` element, you can use the `group` elements to better organize them into hierarchical, meaningful structures. Sometimes, it can also be beneficial to refer to several `target` elements by use of the name of the parent `group` element.
+
+An important (and rather peculiar) feature of `target` elements is that you can nest them into each other to gain more flexibility for hierarchical specification of `host` and `subnet` groups. Unfortunately, our example network is so simple that it does not allow to demonstrate it easily. Let me explain it in a completely independent example:
+
+```
+<targets>
+  <target name="rdp-from-all">
+    <service name="rdp"/>
+
+    <host name="pc-one"/>
+
+    <target name="rdp-from-servers">
+      <host name="pc-two"/>
+    </target>
+
+  </target>
+</targets>
+```
+
+If you specify the "rdp-from-all" `target` by use of `access` element in all private `subnet` elements, then only the "pc-one `host` will be accessible by remote desktop client. Next, if yo specify the "rdp-from-servers" `target` by use of `access` element in the "net-services" `subnet` element, then both "pc-one" and "pc-two" will be accessible from the "net-services `subnet` hosts, without need to repeat `host` declaration of "pc-one" inside the "rdp-from-servers" `target` element.
